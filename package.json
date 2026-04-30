@@ -1,0 +1,25 @@
+{
+  "name": "recipes",
+  "version": "1.0.0",
+   "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+  "dev": "nodemon recipes.js"
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mahmoud7mustafa9/recipes.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mahmoud7mustafa9/recipes/issues"
+  },
+  "homepage": "https://github.com/Mahmoud7mustafa9/recipes#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "mongoose": "^9.6.1"
+  }
+}
