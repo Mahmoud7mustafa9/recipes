@@ -1,7 +1,11 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+
+dotenv.config();
 
 const ConnectDB = ()=> {
-      mongoose.connect("mongodb://127.0.0.1:27017/recipesDb").then(()=>{
+      mongoose.connect(process.env.DB_LINK).then(()=>{
 
     console.log("DB connected ///")
 })

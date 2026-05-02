@@ -5,13 +5,13 @@ const favoriteSchema = new Schema (
       user : {
         type: mongoose.Types.ObjectId,
         ref:"User",
-        require:true,
+        required:true,
       },
 
       recipe : {
         type: mongoose.Types.ObjectId,
         ref:"Recipe",
-        require:true,
+        required:true,
       },
     
     

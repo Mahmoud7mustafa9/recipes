@@ -1,12 +1,11 @@
 {
   "name": "recipes",
   "version": "1.0.0",
-   "type": "module",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "scripts": {
-  "dev": "nodemon recipes.js"
-
+    "dev": "nodemon recipes.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +18,7 @@
   },
   "homepage": "https://github.com/Mahmoud7mustafa9/recipes#readme",
   "dependencies": {
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.6.1"
   }

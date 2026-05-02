@@ -1,9 +1,11 @@
 import express from "express";
-
 import ConnectDB from "./database/DBconnection.js";
+import  dotenv  from 'dotenv';
 
 const app = express();
-const port = 3000
+const port = process.env.PORT|| 3000 
+
+dotenv.config() ;
 
 app.get("/",(req,res)=>{
     res.send ("heloo >>>>")
@@ -11,11 +13,15 @@ app.get("/",(req,res)=>{
 
 
 const start = async ()=> {
-
-await ConnectDB ();
-
-app.listen(port , ()=> {
+try {
+await ConnectDB();
+app.listen(port, ()=> {
     console.log(`the app listening at ${port} ...`)
-})
+})}
+catch {(err)=>{
+console.log (err , "not onnected ?")
+}}
+
+
 }
 start();
