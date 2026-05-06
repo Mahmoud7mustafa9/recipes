@@ -3,14 +3,14 @@ import mongoose, { model, Schema } from "mongoose";
 const favoriteSchema = new Schema (
     {
       user : {
-        type: mongoose.Types.ObjectId,
-        ref:"User",
+        type: mongoose.SchemaTypes.ObjectId,
+        ref:"user",
         required:true,
       },
 
       recipe : {
-        type: mongoose.Types.ObjectId,
-        ref:"Recipe",
+        type: mongoose.SchemaTypes.ObjectId,
+        ref:"recipe",
         required:true,
       },
     

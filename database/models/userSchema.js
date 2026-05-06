@@ -10,7 +10,8 @@ const userSchema = new Schema (
 
         email :{
             type : String,
-           required: true
+           required: true,
+           unique: true,
         },
 password :{
             type : String,
@@ -31,7 +32,25 @@ otp :{
            
         },
         otpExpire : Date ,
-    }
-)
+    },{
+        
+            timestamps:{
+                createdAt: "MyDate",
+                updatedAt : false
+            },
+versionKey: false ,
+
+
+    })
+
+// userSchema.index({email:1})
+
+// userSchema.set("toJSON" , {
+//     transform: (doc,ret)=>{
+//      console.log(doc);
+//      delete ret.password
+
+//     }
+// })
 
 export const User = model("user", userSchema);

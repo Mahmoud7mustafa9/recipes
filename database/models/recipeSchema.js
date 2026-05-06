@@ -1,24 +1,24 @@
 import mongoose, { model, Schema } from "mongoose";
-import { Category } from "./categoryShema";
+
 
 const recipeSchema = new Schema (
     {
        title :{
             type : String,
-            require : true,
+            required : true,
         },
         description : {
-            type : string,
-            require: true,
+            type : String,
+            required: true,
         },
         ingredients : [{
-            type : string,
-            require: true,
+            type : String,
+            required: true,
         },] ,
        user : {
             type : mongoose.Types.ObjectId,
             ref: "User",
-            require: true
+            required: true
 
 },
        category : {
@@ -26,8 +26,17 @@ const recipeSchema = new Schema (
          ref: "Category" ,
         required: true
 
+},
+createdBy: {
+    type:Schema.Types.ObjectId,
+    ref :"User",
+    required: true, 
+},
+image : String ,
+price : {
+    type : String,
+    required : true ,
 }
-
     }
 )
 
