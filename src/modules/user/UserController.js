@@ -32,7 +32,9 @@ let id = req.params.id;
 
 let data = await User.findById(id)
 
-    res.status(200).json({message:"success" , data });
+if (data) return res.status(200).json({message:"success" , data });
+res.status(401).json({message:"user not found >>" })
+
 }
 
 const updateUser = async(req,res)=>{

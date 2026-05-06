@@ -5,21 +5,10 @@ import { Recipe } from "../../../database/models/recipeSchema.js";
 
 export const addFavorite = async (req, res) => {
   try {
-    const { user, recipe } = req.body;
 
-  
-    const recipeExists = await Recipe.findById(recipe);
-
-    if (!recipeExists) {
-      return res.status(400).json({ message: "Invalid recipe" });
-    }
-
-    const data = await Favorites.create({ user, recipe });
-
-    res.status(201).json({
-      message: "Added to favorites",
-      data
-    });
+     const data = new Favorites(req.body);
+   
+    res.status(201).json({ message: "Added to favorites", data});
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

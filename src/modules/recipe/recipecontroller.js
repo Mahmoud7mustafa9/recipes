@@ -5,6 +5,7 @@ import { Recipe } from "../../../database/models/recipeSchema.js";
 export const addRecipe = async (req, res) => {
 try{
     let data = new Recipe(req.body);
+    
 await data.save()
     res.status(201).json({ message: "Recipe created", data });
   }
