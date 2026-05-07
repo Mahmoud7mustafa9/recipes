@@ -15,7 +15,13 @@ const favoriteSchema = new Schema (
       },
     
     
-    }
-)
+    },)
+
+
+    favoriteSchema.set("toJSON",{
+      transform: (doc , ret)=>{
+          delete ret.__v ;
+      }}
+    )
 
 export const Favorites = model("favorite", favoriteSchema);

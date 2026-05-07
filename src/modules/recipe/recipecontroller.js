@@ -4,8 +4,12 @@ import { Recipe } from "../../../database/models/recipeSchema.js";
 
 export const addRecipe = async (req, res) => {
 try{
-    let data = new Recipe(req.body);
+ 
     
+req.body.image = req.file.filename ; 
+
+   let data = new Recipe(req.body);
+
 await data.save()
     res.status(201).json({ message: "Recipe created", data });
   }
@@ -22,10 +26,9 @@ export const getAllRecipes = async (req, res) => {
   try {
 
     const data = await Recipe.find()
-      .populate("user")
-      .populate("category");
-
+   
     res.status(200).json(data);
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

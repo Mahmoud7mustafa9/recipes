@@ -11,6 +11,7 @@ const port = process.env.PORT|| 3000
 dotenv.config() ;
 
 app.use(express.json())
+app.use(express.static("uploads"))
 
 
 app.use("/user",UseRouter)

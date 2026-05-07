@@ -38,6 +38,11 @@ price : {
     required : true ,
 }
     }
+
 )
+
+recipeSchema.post("init", (doc)=>{
+    doc.image = `http://localhost:3000/`+ doc.image
+})
 
 export const Recipe = model("recipe", recipeSchema);
