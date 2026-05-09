@@ -15,26 +15,21 @@ const recipeSchema = new Schema (
             type : String,
             required: true,
         },] ,
-       user : {
-            type : mongoose.Types.ObjectId,
-            ref: "User",
-            required: true
 
-},
        category : {
          type : mongoose.Types.ObjectId,
          ref: "Category" ,
-        required: true
+        // required: true
 
 },
 createdBy: {
     type:Schema.Types.ObjectId,
-    ref :"User",
+    ref :"user",
     required: true, 
 },
 image : String ,
 price : {
-    type : String,
+    type : Number,
     required : true ,
 }
     }

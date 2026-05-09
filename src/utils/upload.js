@@ -22,8 +22,9 @@ function fileFilter(req, file, cb) {
     file.mimetype === "image/jpeg"
   ) {
     cb(null, true);
+
   } else {
-    cb(new Error("Images only"), false);
+    cb("images only ?>", false);
   }
 }
 
