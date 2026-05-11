@@ -1,61 +1,71 @@
 import { User } from "../../../database/models/userSchema.js";
-import bcrypt from "bcrypt"
+import { catchError } from "../../middlewares/catchError.js";
+import { AppError } from "../../utils/AppError.js";
+import bcrypt from "bcrypt";
 
-// { addUser ,getAllUsers,getOneUsers ,updateUser ,deleteUser }
+export const addUser = catchError(async (req, res, next) => {
+  const data = new User(req.body);
 
-const addUser = async(req,res) => {
+  await data.save();
 
-   
+  // hide password before sending response
+  data.password = undefined;
 
-    let data = new User(req.body);
+  res.status(201).json({
+    message: "User created",
+    data,
+  });
+});
 
+export const getAllUsers = catchError(async (req, res, next) => {
+  const data = await User.find();
 
-    await data.save()
+  if (!data || data.length === 0) {
+    return next(new AppError("No users found", 404));
+  }
 
-    // already saved so hide the password from returned data beLoW >>
+  res.status(200).json({
+    message: "success",
+    data,
+  });
+});
 
-    data.password = undefined ;
+export const getOneUser = catchError(async (req, res, next) => {
+  const data = await User.findById(req.params.id);
 
-res.status(200).json({message: "user created" , data})
-}
+  if (!data) {
+    return next(new AppError("User not found", 404));
+  }
 
+  res.status(200).json({
+    message: "success",
+    data,
+  });
+});
 
-const getAllUsers = async(req,res)=>{
+export const updateUser = catchError(async (req, res, next) => {
+  const data = await User.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
 
-    let data = await User.find()
-    res.status(200).json(data);
-}
+  if (!data) {
+    return next(new AppError("User not found", 404));
+  }
 
-const getOneUser = async(req,res)=>{
+  res.status(200).json({
+    message: "Updated successfully",
+    data,
+  });
+});
 
-let id = req.params.id;
+export const deleteUser = catchError(async (req, res, next) => {
+  const data = await User.findByIdAndDelete(req.params.id);
 
-let data = await User.findById(id)
+  if (!data) {
+    return next(new AppError("User not found", 404));
+  }
 
-if (data) return res.status(200).json({message:"success" , data });
-res.status(401).json({message:"user not found >>" })
-
-}
-
-const updateUser = async(req,res)=>{
-
-let id = req.params.id;
-
-let data = await User.findByIdAndUpdate (id ,req.body,{new:true})
-
-    res.status(200).json({message:"success" , data });
-}
-
-const deleteUser = async(req,res)=>{
-
-let id = req.params.id;
-
-let data = await User.findByIdAndDelete(id)
-
-    res.status(200).json({message:"deleted successfully"});
-}
-
-
-
-
-export { addUser ,getAllUsers , getOneUser,updateUser, deleteUser}
+  res.status(200).json({
+    message: "Deleted successfully",
+  });
+});

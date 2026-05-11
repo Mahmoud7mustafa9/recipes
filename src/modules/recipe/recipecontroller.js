@@ -1,131 +1,110 @@
 import { Recipe } from "../../../database/models/recipeSchema.js";
+import { catchError } from "../../middlewares/catchError.js";
+import { AppError } from "../../utils/AppError.js";
+import fs from "fs";
+import path from "path";
 
-
-export const addRecipe = async (req, res) => {
- try {
-
-    console.log("FILE:", req.file);
-
-     if (!req.file) {
-     return res.status(400).json({ message: 'Image is required' });
-   }
-  //  req.body.image = req.file.filename;
-
-    const { title, description, ingredients, category, price } = req.body;
-   const createdBy = req.user._id; 
- 
-   const data = new Recipe({ title, description, ingredients, category, price, createdBy, image: req.file.filename })
-
-    // let data = new Recipe(req.body);
-
-    await data.save()
-
-    res.status(201).json({ message: "Recipe created", data });
-  }
-catch (err){
-  res.status(400).json({ message: err.message });
-  }
+export const addRecipe = catchError(async (req, res, next) => {
+  if (!req.file) {
+    return next(new AppError("Image is required", 400));
   }
 
+  const { title, description, ingredients, category, price } = req.body;
+  const createdBy = req.user._id;
 
+  const data = new Recipe({
+    title,
+    description,
+    ingredients,
+    category,
+    price,
+    createdBy,
+    image: req.file.filename,
+  });
 
+  await data.save();
 
-export const getAllRecipes = async (req, res) => {
+  res.status(201).json({
+    message: "Recipe created",
+    data,
+  });
+});
 
-  try {
-    const data = await Recipe.find()
-      .populate("user")
-      .populate("category");
+export const getAllRecipes = catchError(async (req, res, next) => {
+  const data = await Recipe.find()
+    .populate("user")
+    .populate("category");
 
-    res.status(200).json(data);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  if (!data || data.length === 0) {
+    return next(new AppError("No recipes found", 404));
   }
-};
 
+  res.status(200).json(data);
+});
 
+export const getOneRecipe = catchError(async (req, res, next) => {
+  const data = await Recipe.findById(req.params.id)
+    .populate("user")
+    .populate("category");
 
-export const getOneRecipe = async (req, res) => {
-  try {
-    let {id}= req.params
-    const data = await Recipe.findById(id)
-      .populate("user")
-      .populate("category");
-
-    if (!data) {
-      return res.status(404).json({ message: "Recipe not found" });
-    }
-
-    res.status(200).json(data);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  if (!data) {
+    return next(new AppError("Recipe not found", 404));
   }
-};
 
+  res.status(200).json(data);
+});
 
+export const updateRecipe = catchError(async (req, res, next) => {
+  const recipe = await Recipe.findById(req.params.id);
 
-export const updateRecipe = async (req, res) => {
-  try {
-    const recipe = await Recipe.findById(req.params.id);
-
-    if (!recipe) {
-      return res.status(404).json({ message: "Recipe not found" });
-    }
-
-    // Handle image replacement
-    if (req.file) {
-      // Delete old image if exists
-      if (recipe.image) {
-        const oldImagePath = path.join(
-          "uploads/recipes",
-          path.basename(recipe.image)
-        );
-
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
-      }
-
-      // Save new image filename
-      req.body.image = req.file.filename;
-    }
-
-    const updated = await Recipe.findByIdAndUpdate(req.params.id,req.body,{ new: true });
-
-    res.status(200).json({message: "Updated",data: updated,});
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+  if (!recipe) {
+    return next(new AppError("Recipe not found", 404));
   }
-};
 
-
-export const deleteRecipe = async (req, res) => {
-  try {
-  
-    // await Recipe.findByIdAndDelete(req.params.id); 
-    
-   const deleted = await Recipe.findByIdAndDelete(req.params.id);
-
-   if (!deleted) {
-     return res.status(404).json({ message: 'Recipe not found' });
-   }
-
-
-    // Delete image from disk
-    if (deleted.image) {
-      const imagePath = path.join(
+  if (req.file) {
+    if (recipe.image) {
+      const oldImagePath = path.join(
         "uploads/recipes",
-        path.basename(deleted.image)
+        path.basename(recipe.image)
       );
 
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
       }
     }
 
-   res.status(200).json({ message: 'Recipe deleted' });
-  
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    req.body.image = req.file.filename;
   }
-};
+
+  const updated = await Recipe.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
+
+  res.status(200).json({
+    message: "Updated",
+    data: updated,
+  });
+});
+
+export const deleteRecipe = catchError(async (req, res, next) => {
+  const deleted = await Recipe.findByIdAndDelete(req.params.id);
+
+  if (!deleted) {
+    return next(new AppError("Recipe not found", 404));
+  }
+
+  if (deleted.image) {
+    const imagePath = path.join(
+      "uploads/recipes",
+      path.basename(deleted.image)
+    );
+
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+    }
+  }
+
+  res.status(200).json({
+    message: "Recipe deleted",
+  });
+});
