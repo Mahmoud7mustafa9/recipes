@@ -1,3 +1,9 @@
+
+process.on("unCaughtExcepions",(err)=>{
+    console.log("error db",err)
+})
+
+
 import express from "express";
 import ConnectDB from "./database/DBconnection.js";
 import  dotenv  from 'dotenv';
@@ -6,6 +12,7 @@ import recipeRouter from "./src/modules/recipe/recipe.router.js";
 import favRouter from "./src/modules/favorites/fav.router.js";
 import categoryRouter from "./src/modules/category/categoryrouter.js";
 import { authRouter } from "./src/modules/auth/authRouter.js";
+import { globleError } from "./src/middlewares/globalError.js";
 const app = express();
 const port = process.env.PORT|| 3000 
 
@@ -21,6 +28,18 @@ app.use("/fav",favRouter)
 app.use("/categories",categoryRouter)
 app.use("/auth",authRouter)
 
+
+app.use((req,res,next)=>{
+
+next(new AppError(`404 page not found ${req.originalUrl}`,404))
+
+})
+
+app.use(globleError);
+
+process.on("unhandleRejection",(err)=>{
+    console.log("error db")
+})
 
 
 const start = async ()=> {
