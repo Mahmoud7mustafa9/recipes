@@ -5,6 +5,7 @@ import { UseRouter } from "./src/modules/user/userRouter.js";
 import recipeRouter from "./src/modules/recipe/recipe.router.js";
 import favRouter from "./src/modules/favorites/fav.router.js";
 import categoryRouter from "./src/modules/category/categoryrouter.js";
+import { authRouter } from "./src/modules/auth/authRouter.js";
 const app = express();
 const port = process.env.PORT|| 3000 
 
@@ -18,6 +19,7 @@ app.use("/user",UseRouter)
 app.use("/recipe",recipeRouter)
 app.use("/fav",favRouter)
 app.use("/categories",categoryRouter)
+app.use("/auth",authRouter)
 
 
 

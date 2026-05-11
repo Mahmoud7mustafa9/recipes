@@ -1,46 +1,9 @@
 import { Recipe } from "../../../database/models/recipeSchema.js";
 
 
-// 5. updateRecipe Does Not Handle Image Replacement (recipe.controller.js)
-
-  //  If a new file is uploaded during an update, req.file is never read and the image field in the database
-  //  is never updated. Additionally, the old image file on disk is never deleted,
-  //  leaving orphaned files in uploads/recipes/.
-
-  //  Before saving the update, check for req.file, delete the old image from disk if it exists,
-  //  and set the new filename in the update payload.
-
-
-// 7. deleteRecipe Does Not Delete the Image File from Disk (recipe.controller.js)
-
-  //  When a recipe is deleted, the associated image stored in uploads/recipes/ is never removed.
-    // Over time this causes orphaned files to accumulate. After confirming the document was found,
-    //  extract the filename from the stored path and unlink it from disk.
-
-// 8. post("init") Hook Uses a Hardcoded localhost URL (recipeSchema.js)
-
-  //  The hook builds the image URL as:
-  //  doc.image = `http://localhost:3000/` + doc.image
-
-  //  This will produce broken URLs in any environment other than local development (staging, production, etc.).
-    // Use an environment variable instead:
-  //  doc.image = `${process.env.APP_URL || 'http://localhost:3000'}/` + doc.image
-// 
-// 9. getAllRecipes Does Not Populate Relational Fields (recipe.controller.js)
-// 
-    // getOneRecipe correctly populates user and category, but getAllRecipes returns raw 
-    // ObjectIds with no population.
-    //  This gives clients inconsistent data shapes depending on which endpoint they call.
-      // Add the same populate calls to getAllRecipes.
-
-
-
-
-
-
-
 export const addRecipe = async (req, res) => {
  try {
+
     console.log("FILE:", req.file);
 
      if (!req.file) {
@@ -49,7 +12,7 @@ export const addRecipe = async (req, res) => {
   //  req.body.image = req.file.filename;
 
     const { title, description, ingredients, category, price } = req.body;
-   const createdBy = req.user._id; // from auth middleware
+   const createdBy = req.user._id; 
  
    const data = new Recipe({ title, description, ingredients, category, price, createdBy, image: req.file.filename })
 
@@ -65,23 +28,16 @@ catch (err){
   }
 
 
-  // try{
-//  console.log (req.file.filename);
-    
-// 
-
-
-
 
 
 export const getAllRecipes = async (req, res) => {
 
   try {
-
     const data = await Recipe.find()
-   
-    res.status(200).json(data);
+      .populate("user")
+      .populate("category");
 
+    res.status(200).json(data);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -107,17 +63,41 @@ export const getOneRecipe = async (req, res) => {
 };
 
 
+
 export const updateRecipe = async (req, res) => {
   try {
-      const data = await Recipe.findByIdAndUpdate(req.params.id, req.body, { new: true });
-   if (!data) {
-     return res.status(404).json({ message: 'Recipe not found' });
-   }
-   res.status(200).json({ message: 'Updated', data });
+    const recipe = await Recipe.findById(req.params.id);
+
+    if (!recipe) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
+
+    // Handle image replacement
+    if (req.file) {
+      // Delete old image if exists
+      if (recipe.image) {
+        const oldImagePath = path.join(
+          "uploads/recipes",
+          path.basename(recipe.image)
+        );
+
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+
+      // Save new image filename
+      req.body.image = req.file.filename;
+    }
+
+    const updated = await Recipe.findByIdAndUpdate(req.params.id,req.body,{ new: true });
+
+    res.status(200).json({message: "Updated",data: updated,});
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 export const deleteRecipe = async (req, res) => {
   try {
@@ -125,9 +105,24 @@ export const deleteRecipe = async (req, res) => {
     // await Recipe.findByIdAndDelete(req.params.id); 
     
    const deleted = await Recipe.findByIdAndDelete(req.params.id);
+
    if (!deleted) {
      return res.status(404).json({ message: 'Recipe not found' });
    }
+
+
+    // Delete image from disk
+    if (deleted.image) {
+      const imagePath = path.join(
+        "uploads/recipes",
+        path.basename(deleted.image)
+      );
+
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+
    res.status(200).json({ message: 'Recipe deleted' });
   
   } catch (err) {

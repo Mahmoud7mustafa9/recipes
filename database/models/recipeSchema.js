@@ -1,5 +1,8 @@
 import mongoose, { model, Schema } from "mongoose";
 
+import dotenv from 'dotenv';
+
+dotenv.config() ;
 
 const recipeSchema = new Schema (
     {
@@ -37,7 +40,7 @@ price : {
 )
 
 recipeSchema.post("init", (doc)=>{
-    doc.image = `http://localhost:3000/`+ doc.image
+    doc.image = `${process.env.APP_URL || "http://localhost:3000"}/${doc.image}`;
 })
 
 export const Recipe = model("recipe", recipeSchema);

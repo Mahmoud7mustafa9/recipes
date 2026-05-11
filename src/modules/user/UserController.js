@@ -5,7 +5,7 @@ import bcrypt from "bcrypt"
 
 const addUser = async(req,res) => {
 
-    req.body.password = bcrypt.hashSync(req.body.password,8);
+   
 
     let data = new User(req.body);
 
