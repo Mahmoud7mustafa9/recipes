@@ -1,5 +1,5 @@
 import { User } from "../../database/models/userSchema.js";
-
+import bcrypt from "bcrypt" ;
 const checkEmail = async(req,res,next) => {
 
     let isExist = await User.findOne({email:req.body.email});
