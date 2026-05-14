@@ -1,5 +1,5 @@
 
-process.on("unCaughtExcepions",(err)=>{
+process.on("uncaughtException",(err)=>{
     console.log("error db",err)
 })
 
@@ -13,10 +13,14 @@ import favRouter from "./src/modules/favorites/fav.router.js";
 import categoryRouter from "./src/modules/category/categoryrouter.js";
 import { authRouter } from "./src/modules/auth/authRouter.js";
 import { globleError } from "./src/middlewares/globalError.js";
+import { AppError } from "./src/utils/AppError.js";
+
 const app = express();
-const port = process.env.PORT|| 3000 
 
 dotenv.config() ;
+
+const port = process.env.PORT|| 3000 
+
 
 app.use(express.json())
 app.use(express.static("uploads"))
@@ -37,7 +41,7 @@ next(new AppError(`404 page not found ${req.originalUrl}`,404))
 
 app.use(globleError);
 
-process.on("unhandleRejection",(err)=>{
+process.on("unhandledRejection",(err)=>{
     console.log("error db")
 })
 
@@ -48,10 +52,7 @@ await ConnectDB();
 app.listen(port, ()=> {
     console.log(`the app listening at ${port} ...`)
 })}
-catch {(err)=>{
-console.log (err , "not onnected ?")
-}}
-
-
+catch(err) {
+  console.log(err, "not connected ?");}
 }
 start();

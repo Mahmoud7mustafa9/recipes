@@ -22,7 +22,7 @@ const recipeSchema = new Schema (
        category : {
          type : mongoose.Types.ObjectId,
          ref: "Category" ,
-        // required: true
+        required: true
 
 },
 createdBy: {
