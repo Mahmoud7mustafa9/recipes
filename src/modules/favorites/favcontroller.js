@@ -2,11 +2,12 @@ import { Favorites } from "../../../database/models/favoriteSchema.js";
 import { Recipe } from "../../../database/models/recipeSchema.js";
 import { catchError } from "../../middlewares/catchError.js";
 import { AppError } from "../../utils/AppError.js";
-
-
+import jwt from"jsonwebtoken";
 
 export const addFavorite = async (req, res) => {
   try {
+
+   req.body.user = req.user.id;
 
      const data = new Favorites(req.body);
 
@@ -19,7 +20,9 @@ export const addFavorite = async (req, res) => {
   }
 };
 export const getAllFavorites = catchError(async (req, res, next) => {
-  const data = await Favorites.find()
+
+
+  const data = await Favorites.find({user:req.user.id})
     .populate("user", "name -_id")
     .populate("recipe", "title -_id");
 

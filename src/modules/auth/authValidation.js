@@ -5,15 +5,13 @@ const signUpValidation = Joi.object({
     email : Joi.string().email().required(),
     password: Joi.string().pattern(/^[a-zA-Z0-9]{6,40}$/).required(),
     repassword: Joi.valid(Joi.ref("password")).required(),
-    age : Joi.number().min(12).required()
-})
+    age : Joi.number().min(12).required(),
+}).unknown(false);
 
 const signInValidation = Joi.object({
 
-   name : Joi.string().min(3).required(),
     email : Joi.string().email().required(),
     password: Joi.string().pattern(/^[a-zA-Z0-9]{6,40}$/).required(),
-    repassword: Joi.valid(Joi.ref("password")).required(),
 
 })
 

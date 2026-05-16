@@ -4,16 +4,16 @@ import {
   getUserFavorites,
   removeFavorite , getAllFavorites
 } from "./favcontroller.js";
-import { validator } from "../../middlewares/validator.js";
-import { addFavValidation } from "./favorites.validation.js";
-
+import { validate } from "../../middlewares/validator.js";
+import { addFavValidation, deleteFavValidation } from "./favorites.validation.js";
+import { verifyToken } from "../../middlewares/verifyToken.js";
 
 
 const favRouter = express.Router();
 
-favRouter.post("/", validator(addFavValidation),addFavorite);
+favRouter.post("/", validate(addFavValidation),verifyToken,addFavorite);
 favRouter.get("/:id", getUserFavorites);
-favRouter.get("/", getAllFavorites);
-favRouter.delete("/:userId/:recipeId", removeFavorite);
+favRouter.get("/", verifyToken,getAllFavorites);
+favRouter.delete("/:userId/:recipeId",validate(deleteFavValidation), removeFavorite);
 
 export default favRouter;

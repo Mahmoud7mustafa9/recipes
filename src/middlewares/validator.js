@@ -1,9 +1,18 @@
-export const validator = (schema)=>{
+import { AppError } from "../utils/AppError"
+
+export const validate = (schema)=>{
+
     return(req,res,next)=>{
-        let {error} = schema.validate(req.body,{abortEarly:false})
+
+const data = {...req.body,...req.query,...req.params,image:req.file}
+
+const {error} = schema.validate(data,{abortEarly:false})
 
 if (error) {
-     res.json(error.message)
+
+    const messageError = error.details.map((err)=> err.message)
+     
+    return next(new AppError(messageError,401))
 }
 else {
     next()

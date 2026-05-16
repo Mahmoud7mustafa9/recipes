@@ -2,6 +2,7 @@ import { User } from "../../../database/models/userSchema.js";
 import bcrypt  from 'bcrypt';
 import { catchError } from "../../middlewares/catchError.js";
 import { AppError } from "../../utils/AppError.js";
+import jwt from "jsonwebtoken"
 
 
 const signUp = catchError(async (req,res) =>{
@@ -22,7 +23,10 @@ const isMatch = await bcrypt.compare(req.body.password, isExist.password);
 
 if( isExist && isMatch ){
 
-    res.status(201).json({message:"signed in with token"})
+jwt.sign({id:isExist._id,name:isExist.name,role:isExist.role},"signInUser",(error,token)=>{
+res.status(201).json({message:"signed in with token",token})
+})
+    
 }
 else{
     next(new AppError("wrong password or email", 401))
