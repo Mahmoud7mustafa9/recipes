@@ -1,24 +1,27 @@
 import { Favorites } from "../../../database/models/favoriteSchema.js";
-import { Recipe } from "../../../database/models/recipeSchema.js";
 import { catchError } from "../../middlewares/catchError.js";
 import { AppError } from "../../utils/AppError.js";
-import jwt from"jsonwebtoken";
 
-export const addFavorite = async (req, res) => {
-  try {
 
-   req.body.user = req.user.id;
+export const addFavorite = catchError(async (req, res,next) => {
 
-     const data = new Favorites(req.body);
+const recipe = req.body
 
-     await data.save()
+const isExist = await Favorites.findOne({recipe, user:req.user.id});
+
+if(isExist) return next(new AppError("you already added this recipe before ", 400))
+
+
+req.body.user = req.user.id;
+
+const data = new Favorites(req.body);
+
+await data.save()
    
-    res.status(201).json({ message: "Added to favorites", data});
+res.status(201).json({ message: "Added to favorites successfully", data});
 
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
+
+  })
 export const getAllFavorites = catchError(async (req, res, next) => {
 
 
@@ -37,6 +40,7 @@ export const getAllFavorites = catchError(async (req, res, next) => {
 });
 
 export const getUserFavorites = catchError(async (req, res, next) => {
+
   const data = await Favorites.find({ user: req.params.id })
     .populate("user", "name -_id")
     .populate("recipe", "title -_id");
@@ -52,11 +56,12 @@ export const getUserFavorites = catchError(async (req, res, next) => {
 });
 
 
-export const removeFavorite =catchError( async (req, res) => {
-
+export const removeFavorite =
+catchError( async (req, res) => {
+let {id} = req.params
     const data = await Favorites.findOneAndDelete({
-      user: req.params.userId,
-      recipe: req.params.recipeId
+      user: id ,
+      recipe: req.user.id
     });
 
     if (!data) {
