@@ -58,8 +58,16 @@ const data = await Recipe.find(filter).skip(skip).limit(limit)
   if (!data || data.length === 0) {
     return next(new AppError("No recipes found", 404));
   }
+let totalRecipes = await Recipe.countDocuments(filter)
 
-  res.status(200).json(data);
+
+  res.status(200).json({message:"sucess" ,
+    metaData:{
+      currentPage : pageNumber,
+      totalNumber:totalRecipes,
+      totalPages : math.ceil(totalRecipes/limit)
+    }, data 
+  });
 });
 
 export const getOneRecipe = catchError(async (req, res, next) => {
