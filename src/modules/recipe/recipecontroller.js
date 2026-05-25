@@ -4,6 +4,7 @@ import { AppError } from "../../utils/AppError.js";
 import fs from "fs";
 import path from "path";
 
+
 export const addRecipe = catchError(async (req, res, next) => {
   if (!req.file) {
     return next(new AppError("Image is required", 400));
@@ -31,9 +32,28 @@ export const addRecipe = catchError(async (req, res, next) => {
 });
 
 export const getAllRecipes = catchError(async (req, res, next) => {
-  const data = await Recipe.find()
+
+let filter = {}
+
+if (req.query.search){
+  filter.title = {$regex:req.query.search,$options:"i"}
+}
+if (req.query.category){ 
+  filter.category = req.query.category
+}
+
+
+let pageNumber = req.query.page * 1 || 1
+if (pageNumber < 1) pageNumber = 1
+
+let limit = req.query.limit * 1 || 1
+
+let skip = (pageNumber - 1 ) * limit
+
+
+const data = await Recipe.find(filter).skip(skip).limit(limit)
     .populate("user")
-    .populate("category");
+    .populate("category" , "name -_id");
 
   if (!data || data.length === 0) {
     return next(new AppError("No recipes found", 404));
