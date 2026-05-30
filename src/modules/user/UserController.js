@@ -1,7 +1,10 @@
+import { promises } from "nodemailer/lib/xoauth2/index.js";
 import { User } from "../../../database/models/userSchema.js";
 import { catchError } from "../../middlewares/catchError.js";
 import { AppError } from "../../utils/AppError.js";
 import bcrypt from "bcrypt";
+import { Category } from "../../../database/models/categorySchema.js";
+import { Recipe } from "../../../database/models/recipeSchema.js";
 
 export const addUser = catchError(async (req, res, next) => {
   const data = new User(req.body);
@@ -67,5 +70,28 @@ export const deleteUser = catchError(async (req, res, next) => {
 
   res.status(200).json({
     message: "Deleted successfully",
+  });
+});
+
+
+
+export const dashBoard = catchError(async (req, res, next) => {
+  
+  
+  const [userCounts , categoriesCount, recipesCount ] = await Promise.all([
+
+    User.countDocuments(),
+Category.countDocuments(),
+Recipe.countDocuments()
+
+  ])
+
+  res.status(200).json({
+    message: "sucecss",
+    data:{
+      totalUser:userCounts,
+      totalCtegories:categoriesCount,
+      totalrECIPES:recipesCount,
+    }
   });
 });

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addUser ,getAllUsers,getOneUser, updateUser , deleteUser } from "./UserController.js";
+import { addUser ,getAllUsers,getOneUser, updateUser , deleteUser, dashBoard } from "./UserController.js";
 import { validate } from "../../middlewares/validator.js";
 // getAllUsers,getOneUsers ,updateUser ,deleteUser 
 import { addUserValidation, updateUserValidation } from "./userValidation.js";
@@ -11,8 +11,9 @@ UseRouter.use(protectedRoutes)
 
 
 UseRouter.post("/", allowTo("admin"),validate(addUserValidation),checkEmail, addUser)
-UseRouter.get("/", getAllUsers)
+UseRouter.get("/",allowTo("admin"), getAllUsers)
 UseRouter.get("/:id", getOneUser)
+UseRouter.get("/dashboard", allowTo("admin"),dashBoard)
 UseRouter.put("/:id", allowTo("admin","user"),validate(updateUserValidation),updateUser)
 UseRouter.delete("/:id",allowTo("admin"), deleteUser)
 

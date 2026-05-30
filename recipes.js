@@ -14,7 +14,7 @@ import categoryRouter from "./src/modules/category/categoryrouter.js";
 import { authRouter } from "./src/modules/auth/authRouter.js";
 import { globleError } from "./src/middlewares/globalError.js";
 import { AppError } from "./src/utils/AppError.js";
-
+import cors from "cors"
 const app = express();
 
 dotenv.config() ;
@@ -23,6 +23,7 @@ const port = process.env.PORT|| 3000
 
 
 app.use(express.json())
+app.use(cors())
 app.use(express.static("uploads"))
 
 

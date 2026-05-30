@@ -57,7 +57,7 @@ export const getUserFavorites = catchError(async (req, res, next) => {
 
 
 export const removeFavorite =
-catchError( async (req, res) => {
+catchError( async (req, res,next) => {
 let {id} = req.params
     const data = await Favorites.findOneAndDelete({
       user: id ,

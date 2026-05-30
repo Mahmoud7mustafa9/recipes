@@ -26,9 +26,9 @@ const isMatch = await bcrypt.compare(req.body.password, isExist.password);
 
 if( isExist && isMatch ){
 
-jwt.sign({id:isExist._id,name:isExist.name,role:isExist.role},"signInUser",(error,token)=>{
+jwt.sign({id:isExist._id,name:isExist.name,role:isExist.role},process.env.JWT_SECRET,(error,token)=>{
 
-res.status(201).json({message:"signed in with token",token})
+res.status(200).json({message:"signed in with token",token})
 })
     
 }
@@ -40,15 +40,20 @@ else{
 
 const protectedRoutes = catchError(async(req,res,next)=>{
 
-    let{token} = req.headers;
-
-    let payload = jwt.verify(token , "signInUser")
+    let payload = jwt.verify(token , process.env.JWT_SECRET)
 
     let user = await User.findById(payload.id)
 
     if(!user) return next(new AppError("user is not found",404))
 
     req.user = user
+
+    if(user.passwordChangedAt) {
+
+        let changeTime = parseInt(user.passwordChangedAt.getTime()/1000,10)
+
+        if (payload.iat < changeTime) return next(new AppError("your token expired please login again "))
+    }
     next()
 })
 
@@ -83,10 +88,6 @@ isExist.isOtpVerified = false;
 
 await isExist.save()
 
-})
-
-
-
 // Create a transporter using SMTP
 const transporter = nodemailer.createTransport({
 service: "gmail",
@@ -108,6 +109,43 @@ const info = await transporter.sendMail({
 
 
 
+})
+
+const verifyOtp = catchError(async(req,res,next)=>{
+
+let {email,otp} = req.body
+
+let user =await User.findOne({email});
+if(!user) return next(new AppError("user not found" , 404))
+if(Date.now() > user.otpExpire) return next(new AppError("your otp is expired please try again .." , 400))
+let match = await bcrypt.compare(otp,user.otp)
+if(!match) return next(new AppError("your otp is not right >>>" , 400))
+
+user.isOtpVerified = true;
+    await user.save()
+res.status(200).json({message:"success", description :"your otp is correct you can now change your password >>"})    
+}) 
+
+
+const resetPassword = catchError(async(req,res,next)=>{
+
+let {email, password} = req.body ;
+
+let user = User.findOne({email});
+if(!user) return next(new AppError("user not found" , 404))
+if(!user.isOtpVerified) return next(new AppError("please verify with your otp first" , 404));
+
+user.password = password ;
+
+user.otp = undefined;
+user.otpExpire = undefined;        
+user.passwordChangedAt= Date.now();
+user.isOtpVerified =false;
+
+await user.save();
+res.status(200).json({message:"success", description :"password reseted successfully ! you can log in now "})
+})
+
 
 export {
     signUp ,
@@ -115,5 +153,6 @@ export {
 protectedRoutes,
 allowTo, 
 forgetPassword,
+verifyOtp
 
 }

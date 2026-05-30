@@ -14,12 +14,31 @@ const signInValidation = Joi.object({
     password: Joi.string().pattern(/^[a-zA-Z0-9]{6,40}$/).required(),
 
 })
+const forgetPassValidation = Joi.object({
 
+    email : Joi.string().email().required(),
+
+})
+const verifyOtpValidation = Joi.object({
+
+    email : Joi.string().email().required(),
+    otp: Joi.string().length(6).required(),
+
+})
+const resetPassValidation = Joi.object({
+
+    email : Joi.string().email().required(),
+    password: Joi.string().pattern(/^[a-zA-Z0-9]{6,40}$/).required(),
+
+})
 
 export {
 
     signUpValidation,
     signInValidation,
+    forgetPassValidation,
+    verifyOtpValidation,
+    resetPassValidation,
 }
 
 // ex: Sign Up Validation

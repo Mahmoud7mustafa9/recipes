@@ -10,6 +10,6 @@ recipeRouter.post("/",protectedRoutes,allowTo("admin"),uploadSingleFile("image")
 recipeRouter.get("/", getAllRecipes);
 recipeRouter.get("/:id", getOneRecipe);
 recipeRouter.put("/:id",protectedRoutes,allowTo("admin"),uploadSingleFile("image"),validate(updateRecipeValidation), updateRecipe);
-recipeRouter.delete("/:id",protectedRoutes,allowTo("admin","user"), validate(deleteRecipeValidation),deleteRecipe);
+recipeRouter.delete("/:id",protectedRoutes,allowTo("admin"), validate(deleteRecipeValidation),deleteRecipe);
 
 export default recipeRouter;

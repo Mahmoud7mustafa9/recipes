@@ -7,10 +7,10 @@ export const verifyToken = (req,res,next)=> {
 
 if (!token) return next(new AppError("No token provided", 401));
 
-jwt.verify(token,"signInUser",(Error, decoded)=>{
+jwt.verify(token, process.env.JWT_SECRET,(Error, decoded)=>{
 
     if(Error){
-        next(new AppError(Error,401))
+        next(new AppError(Error.message,401))
     }
 
     else{
