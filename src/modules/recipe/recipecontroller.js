@@ -46,7 +46,7 @@ if (req.query.category){
 let pageNumber = req.query.page * 1 || 1
 if (pageNumber < 1) pageNumber = 1
 
-let limit = req.query.limit * 1 || 1
+let limit = req.query.limit * 1 || 5
 
 let skip = (pageNumber - 1 ) * limit
 
@@ -56,6 +56,7 @@ const data = await Recipe.find(filter).skip(skip).limit(limit)
     .populate("category" , "name -_id");
 
   if (!data || data.length === 0) {
+
     return next(new AppError("No recipes found", 404));
   }
 let totalRecipes = await Recipe.countDocuments(filter)

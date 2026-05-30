@@ -33,6 +33,13 @@ otp :{
            
         },
         otpExpire : Date ,
+        
+        passwordChangedAt : Date,
+
+        isOtpVerified :{
+            type:Boolean,
+            default:false
+        }
     },{
  timestamps: true, 
 versionKey: false ,
